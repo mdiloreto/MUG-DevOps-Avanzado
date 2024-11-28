@@ -13,10 +13,16 @@ import os
 logging.basicConfig(level=logging.DEBUG)
 output_dir = os.getenv("FLASK_OUTPUT_DIR", "/app/outputs") ## Default for local tests:"/app/outputs" ||  "/home" for Linux App Service Web App
 
+# Serve files from the mounted storage
+@app.route('/mnt/sa_mount/<path:filename>')
+def serve_storage_file(filename):
+    storage_path = '/mnt/sa_mount'
+    return send_from_directory(storage_path, filename)
+
 @app.route('/')
 def home():
     return render_template("index.html")
-
+    
 
 @app.route('/api/translate', methods=['POST'])
 def transcribe_video():
