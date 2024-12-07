@@ -13,7 +13,7 @@ env:
   TEST_AZURE_CREDENTIALS: ${{ secrets.TEST_AZURE_CREDENTIALS }}
   TEST_ENDPOINT: ${{ vars.TEST_ENDPOINT }}
   TEST_URL: ${{ vars.TEST_URL }}
-  FLASK_OUTPUT_DIR: ${{ vars.FLASK_OUTPUT_DIR }}
+  INSTRUMENTATION_KEY: ${{ secrets.INSTRUMENTATION_KEY}}
 
 jobs:
   unit-test:
@@ -34,7 +34,7 @@ jobs:
         run: docker build --build-arg FLASK_OUTPUT_DIR=$FLASK_OUTPUT_DIR -t ${{ env.IMAGE_NAME_main }} .
 
       - name: Run Docker Container
-        run: docker run -d --name ${{ env.IMAGE_NAME_main }} -p 5000:5000 ${{ env.IMAGE_NAME_main }}
+        run: docker run -d --name ${{ env.IMAGE_NAME_main }} -p 5000:5000 ${{ env.IMAGE_NAME_main }} -e INSTRUMENTATION_KEY=$INSTRUMENTATION_KEY
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -52,7 +52,7 @@ jobs:
             echo "TEST_URL=$TEST_URL"
             echo "TEST_AZURE_ENDPOINT=$TEST_AZURE_ENDPOINT"
             echo "TEST_AZURE_CREDENTIALS=$TEST_AZURE_CREDENTIALS"
-            echo "FLASK_OUTPUT_DIR=$FLASK_OUTPUT_DIR"
+            echo "INSTRUMENTATION_KEY=$INSTRUMENTATION_KEY"
 
       - name: Run Unit Tests
         run: pytest ./tests
@@ -86,7 +86,7 @@ jobs:
             ${{ secrets.AZURE_ACR_ENDPOINT }}/${{ env.IMAGE_NAME_main }}:${{ github.sha }}
             ${{ secrets.AZURE_ACR_ENDPOINT }}/${{ env.IMAGE_NAME_main }}:latest
           build-args: |
-            FLASK_OUTPUT_DIR=$FLASK_OUTPUT_DIR
+            FLASK_OUTPUT_DIR: /home 
 
   build-dev:
     name: Build-dev
@@ -114,4 +114,4 @@ jobs:
             ${{ secrets.AZURE_ACR_ENDPOINT }}/${{ env.IMAGE_NAME_dev }}:${{ github.sha }}
             ${{ secrets.AZURE_ACR_ENDPOINT }}/${{ env.IMAGE_NAME_dev }}:latest
           build-args: |
-            FLASK_OUTPUT_DIR=$FLASK_OUTPUT_DIR
+            FLASK_OUTPUT_DIR: /home 
